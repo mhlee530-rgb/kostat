@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>국가데이터처 - National Data Service</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                    },
+                    colors: {
+                        gov: {
+                            blue: '#003366',
+                            accent: '#1a73e8',
+                            darkBlue: '#0a192f',
+                            lightBg: '#f8fafc',
+                            gray: '#64748b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom Styles & Particle Effect Background */
+        .hero-bg {
+            background: linear-gradient(135deg, rgba(10, 25, 47, 0.95) 0%, rgba(0, 51, 102, 0.9) 100%),
+                        url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .hover-lift {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hover-lift:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px -10px rgba(0, 51, 102, 0.15);
+        }
+
+        /* Animated grid overlay for futuristic government data theme */
+        .bg-grid-pattern {
+            background-size: 30px 30px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        }
+    </style>
+</head>
+<body class="bg-gov-lightBg font-sans text-gray-800 antialiased flex flex-col min-h-screen">
+
+    <!-- Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <!-- Agency Logo & Name -->
+                <a href="#" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 rounded-full bg-gov-blue flex items-center justify-center text-white font-bold shadow-md group-hover:bg-gov-accent transition">
+                        <i class="fa-solid me-0.5 fa-microchip text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs tracking-widest text-gov-accent font-bold uppercase">대한민국 정부</span>
+                            <span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                        </div>
+                        <span class="text-xl font-black text-gov-blue tracking-tight group-hover:text-gov-accent transition">국가데이터처</span>
+                        <span class="hidden sm:inline text-xs text-gray-500 ml-1 font-medium">National Data Service</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation Menu -->
+                <nav class="hidden md:flex space-x-8 text-sm font-medium text-gray-700">
+                    <a href="#about" class="hover:text-gov-accent transition duration-200 py-2">기관소개</a>
+                    <a href="#functions" class="hover:text-gov-accent transition duration-200 py-2">주요 기능 및 역할</a>
+                    <a href="#dashboard" class="hover:text-gov-accent transition duration-200 py-2">데이터 현황</a>
+                    <a href="#search" class="hover:text-gov-accent transition duration-200 py-2">데이터 검색</a>
+                    <a href="#organization" class="hover:text-gov-accent transition duration-200 py-2">조직 및 안내</a>
+                </nav>
+
+                <!-- Action Button & Mobile Menu Toggle -->
+                <div class="flex items-center space-x-3">
+                    <a href="#search" class="hidden sm:inline-flex items-center space-x-2 px-4 py-2 text-xs font-semibold text-white bg-gov-blue rounded-lg hover:bg-gov-accent transition shadow-sm">
+                        <i class="fa-solid fa-database"></i>
+                        <span>데이터 포털</span>
+                    </a>
+                    <button id="mobileMenuBtn" class="md:hidden text-gray-600 hover:text-gov-blue focus:outline-none p-2" aria-label="메뉴 열기">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-b border-gray-200 px-4 pt-2 pb-4 space-y-2">
+            <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">기관소개</a>
+            <a href="#functions" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">주요 기능 및 역할</a>
+            <a href="#dashboard" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">데이터 현황</a>
+            <a href="#search" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">데이터 검색</a>
+            <a href="#organization" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">조직 및 안내</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative hero-bg text-white py-24 md:py-32 overflow-hidden">
+        <div class="absolute inset-0 bg-grid-pattern opacity-30"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-3xl">
+                <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-blue-200 mb-6">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>대한민국 디지털 패권 시대를 열어가는 중심</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-6">
+                    데이터로 연결되는<br/>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-indigo-200 to-cyan-300">스마트한 대한민국</span>
+                </h1>
+                <p class="text-lg sm:text-xl text-blue-100 font-light mb-10 leading-relaxed">
+                    국가데이터처는 국가 차원의 데이터 통합 관리, AI 생태계 활성화 및 안전한 개방을 통해 미래 혁신 성장을 견인하는 대한민국 대표 디지털 플랫폼 컨트롤타워입니다.
+                </p>
+
+                <!-- Quick Buttons -->
+                <div class="flex flex-wrap gap-4">
+                    <a href="#search" class="inline-flex items-center space-x-2 px-6 py-3.5 bg-gov-accent hover:bg-blue-600 text-white font-semibold rounded-xl shadow-lg transition duration-200">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <span>공공데이터 검색하기</span>
+                    </a>
+                    <a href="#about" class="inline-flex items-center space-x-2 px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white border border-white/30 font-semibold rounded-xl transition duration-200 backdrop-blur-sm">
+                        <span>기관 주요 비전 보기</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Decorative Bottom Curve -->
+        <div class="absolute bottom-0 left-0 right-0 h-10 bg-gov-lightBg clip-path-curve" style="clip-path: ellipse(60% 100% at 50% 100%);"></div>
+    </section>
+
+    <!-- About Us Section (기관 소개 & 핵심 가치) -->
+    <section id="about" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-gov-accent font-bold text-sm uppercase tracking-wider">ABOUT NDS</span>
+                <h2 class="text-3xl font-extrabold text-gov-blue mt-2 mb-4">기관 소개 및 비전</h2>
+                <div class="w-16 h-1 bg-gov-accent mx-auto rounded-full mb-6"></div>
+                <p class="text-gray-600 leading-relaxed">
+                    국가데이터처는 급변하는 글로벌 디지털 전환 시대에 발맞춰, 산재된 공공·민간 데이터 생태계를 통합하고 데이터 가치 창출 극대화를 위해 설립된 국무총리 직속 중앙행정기관입니다.
+                </p>
+            </div>
+
+            <!-- Vision / Mission Layout -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover-lift relative overflow-hidden">
+                    <div class="absolute top-0 right-0 -mr-6 -mt-6 w-24 h-24 bg-blue-50 rounded-full opacity-50"></div>
+                    <div class="w-12 h-12 bg-blue-100 text-gov-blue rounded-xl flex items-center justify-center text-xl mb-6 font-bold">
+                        <i class="fa-solid fa-eye"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">비전 (VISION)</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        "데이터 신뢰와 혁신으로 인공지능(AI) 3대 강국을 실현하는 글로벌 최고 수준의 데이터 선도 국가"
+                    </p>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover-lift relative overflow-hidden">
+                    <div class="absolute top-0 right-0 -mr-6 -mt-6 w-24 h-24 bg-indigo-50 rounded-full opacity-50"></div>
+                    <div class="w-12 h-12 bg-indigo-100 text-indigo-700 rounded-xl flex items-center justify-center text-xl mb-6 font-bold">
+                        <i class="fa-solid fa-bullseye"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">미션 (MISSION)</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        "국가 데이터의 안전한 연결과 파괴적 융합을 통해 국민 삶의 질 향상 및 국가 경쟁력 지속 창출"
+                    </p>
+                </div>
+            </div>
+
+            <!-- Core Values -->
+            <h3 class="text-xl font-bold text-gray-900 text-center mb-8">4대 핵심 가치 (Core Values)</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Value 1 -->
+                <div class="bg-white p-6 rounded-xl border border-gray-100 text-center hover-lift shadow-xs">
+                    <div class="w-14 h-14 mx-auto mb-4 bg-blue-50 text-gov-blue rounded-full flex items-center justify-center text-2xl">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-900 mb-2">신뢰 (Trust)</h4>
+                    <p class="text-xs text-gray-500">철저한 보안과 개인정보 보호 기반의 데이터 안심 환경 구현</p>
+                </div>
+                <!-- Value 2 -->
+                <div class="bg-white p-6 rounded-xl border border-gray-100 text-center hover-lift shadow-xs">
+                    <div class="w-14 h-14 mx-auto mb-4 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-2xl">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-900 mb-2">혁신 (Innovation)</h4>
+                    <p class="text-xs text-gray-500">AI·빅데이터 신기술 패러다임을 선도하는 차세대 제도 수립</p>
+                </div>
+                <!-- Value 3 -->
+                <div class="bg-white p-6 rounded-xl border border-gray-100 text-center hover-lift shadow-xs">
+                    <div class="w-14 h-14 mx-auto mb-4 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center text-2xl">
+                        <i class="fa-solid fa-door-open"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-900 mb-2">개방 (Openness)</h4>
+                    <p class="text-xs text-gray-500">고가치 공공데이터의 아낌없는 개방으로 민간 활력 제고</p>
+                </div>
+                <!-- Value 4 -->
+                <div class="bg-white p-6 rounded-xl border border-gray-100 text-center hover-lift shadow-xs">
+                    <div class="w-14 h-14 mx-auto mb-4 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center text-2xl">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-900 mb-2">가치 창출 (Value)</h4>
+                    <p class="text-xs text-gray-500">데이터 결합과 인프라 지원을 통한 신산업 가치 극대화</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Functions Section (주요 기능 및 역할) -->
+    <section id="functions" class="py-20 bg-gray-100/70 border-y border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-gov-accent font-bold text-sm uppercase tracking-wider">CORE RESPONSIBILITIES</span>
+                <h2 class="text-3xl font-extrabold text-gov-blue mt-2 mb-4">주요 기능 및 역할</h2>
+                <div class="w-16 h-1 bg-gov-accent mx-auto rounded-full mb-6"></div>
+                <p class="text-gray-600">국가데이터처가 수행하는 핵심 5대 임무를 소개합니다.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Duty 1 -->
+                <div class="bg-white p-8 rounded-2xl border border-gray-200 hover-lift flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center text-xl mb-6 shadow-md">
+                            <i class="fa-solid fa-diagram-project"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-3">국가 데이터 통합 관리 및 표준화</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-4">
+                            행정·공공기관 간 파편화된 데이터의 표준 모델을 정립하고 범정부 메타데이터 관리체계를 구축하여 데이터 상호운용성을 대폭 향상시킵니다.
+                        </p>
+                    </div>
+                    <span class="text-xs font-semibold text-gov-accent hover:underline cursor-pointer inline-flex items-center">
+                        자세히 보기 <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
+                    </span>
+                </div>
+
+                <!-- Duty 2 -->
+                <div class="bg-white p-8 rounded-2xl border border-gray-200 hover-lift flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 bg-indigo-600 text-white rounded-xl flex items-center justify-center text-xl mb-6 shadow-md">
+                            <i class="fa-solid fa-folder-open"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-3">공공데이터 개방 및 활성화</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-4">
+                            수요자 중심의 고품질 핵심 데이터를 발굴하여 전면 개방하고, 민간 기업이 편리하게 활용할 수 있도록 맞춤형 API 및 품질 진단을 지원합니다.
+                        </p>
+                    </div>
+                    <span class="text-xs font-semibold text-gov-accent hover:underline cursor-pointer inline-flex items-center">
+                        자세히 보기 <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
+                    </span>
+                </div>
+
+                <!-- Duty 3 -->
+                <div class="bg-white p-8 rounded-2xl border border-gray-200 hover-lift flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 bg-cyan-600 text-white rounded-xl flex items-center justify-center text-xl mb-6 shadow-md">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-3">AI 및 빅데이터 생태계 조성</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-4">
+                            초거대 AI 학습에 필수적인 초고품질 데이터셋을 대량 수집·구축하고, 스타트업 및 연구기관을 위한 연산 인프라 생태계를 육성합니다.
+                        </p>
+                    </div>
+                    <span class="text-xs font-semibold text-gov-accent hover:underline cursor-pointer inline-flex items-center">
+                        자세히 보기 <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
+                    </span>
+                </div>
+
+                <!-- Duty 4 -->
+                <div class="bg-white p-8 rounded-2xl border border-gray-200 hover-lift flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 bg-emerald-600 text-white rounded-xl flex items-center justify-center text-xl mb-6 shadow-md">
+                            <i class="fa-solid fa-user-lock"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-3">데이터 안심구역 및 보안·프라이버시</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-4">
+                            민감 데이터의 가명정보 결합 지원과 함께 안심하고 분석할 수 있는 물리적·기술적 데이터 안심구역(Safe Zone)을 전국 단위로 운영합니다.
+                        </p>
+                    </div>
+                    <span class="text-xs font-semibold text-gov-accent hover:underline cursor-pointer inline-flex items-center">
+                        자세히 보기 <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
+                    </span>
+                </div>
+
+                <!-- Duty 5 -->
+                <div class="bg-white p-8 rounded-2xl border border-gray-200 hover-lift flex flex-col justify-between md:col-span-2 lg:col-span-1">
+                    <div>
+                        <div class="w-12 h-12 bg-rose-600 text-white rounded-xl flex items-center justify-center text-xl mb-6 shadow-md">
+                            <i class="fa-solid fa-chart-pie"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-3">데이터 기반 정책 의사결정 지원</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-4">
+                            범정부 데이터 분석 시뮬레이션을 통해 사회 현안 해결 방안을 시각화하고, 객관적 데이터에 기반한 국정운영 체계를 전방위로 지원합니다.
+                        </p>
+                    </div>
+                    <span class="text-xs font-semibold text-gov-accent hover:underline cursor-pointer inline-flex items-center">
+                        자세히 보기 <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Data Dashboard Section (데이터 현황 마이크로 뷰) -->
+    <section id="dashboard" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-12">
+                <div>
+                    <span class="text-gov-accent font-bold text-sm uppercase tracking-wider">DATA INSIGHTS</span>
+                    <h2 class="text-3xl font-extrabold text-gov-blue mt-2">대한민국 데이터 현황 마이크로 뷰</h2>
+                </div>
+                <p class="text-xs text-gray-500 mt-2 lg:mt-0">* 매일 실시간 자동 업데이트되는 국가 데이터 통계 요약입니다.</p>
+            </div>
+
+            <!-- Stats Counters -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <div class="bg-gov-lightBg p-6 rounded-2xl border border-gray-200/80 text-center">
+                    <p class="text-xs font-semibold text-gray-500 mb-2">개방 공공데이터 수</p>
+                    <p class="text-3xl sm:text-4xl font-black text-gov-blue"><span class="counter" data-target="98420">0</span><span class="text-lg font-normal text-gray-600"> 건</span></p>
+                    <span class="text-[11px] text-emerald-600 font-medium inline-block mt-1"><i class="fa-solid fa-arrow-up text-[9px]"></i> 전년 대비 18.4% 증가</span>
+                </div>
+                <div class="bg-gov-lightBg p-6 rounded-2xl border border-gray-200/80 text-center">
+                    <p class="text-xs font-semibold text-gray-500 mb-2">데이터 활용 기업 수</p>
+                    <p class="text-3xl sm:text-4xl font-black text-gov-blue"><span class="counter" data-target="15200">0</span><span class="text-lg font-normal text-gray-600"> 개사</span></p>
+                    <span class="text-[11px] text-emerald-600 font-medium inline-block mt-1"><i class="fa-solid fa-arrow-up text-[9px]"></i> 신규 유니콘 12개 창출</span>
+                </div>
+                <div class="bg-gov-lightBg p-6 rounded-2xl border border-gray-200/80 text-center">
+                    <p class="text-xs font-semibold text-gray-500 mb-2">데이터 연계 기관 수</p>
+                    <p class="text-3xl sm:text-4xl font-black text-gov-blue"><span class="counter" data-target="1240">0</span><span class="text-lg font-normal text-gray-600"> 개소</span></p>
+                    <span class="text-[11px] text-blue-600 font-medium inline-block mt-1">범정부 네트워크 연동</span>
+                </div>
+                <div class="bg-gov-lightBg p-6 rounded-2xl border border-gray-200/80 text-center">
+                    <p class="text-xs font-semibold text-gray-500 mb-2">창출 경제 가치</p>
+                    <p class="text-3xl sm:text-4xl font-black text-gov-blue"><span class="counter" data-target="42">0</span><span class="text-lg font-normal text-gray-600"> 조 원</span></p>
+                    <span class="text-[11px] text-emerald-600 font-medium inline-block mt-1"><i class="fa-solid fa-arrow-up text-[9px]"></i> 연간 경제파급효과</span>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Chart 1 -->
+                <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+                    <h3 class="text-base font-bold text-gray-900 mb-4 flex items-center justify-between">
+                        <span>연도별 공공데이터 개방 및 활용 추이</span>
+                        <span class="text-xs text-gray-400 font-normal">(단위: 천 건)</span>
+                    </h3>
+                    <div class="h-64">
+                        <canvas id="growthChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 2 -->
+                <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+                    <h3 class="text-base font-bold text-gray-900 mb-4 flex items-center justify-between">
+                        <span>분야별 데이터 개방 비중</span>
+                        <span class="text-xs text-gray-400 font-normal">(2026년 기준)</span>
+                    </h3>
+                    <div class="h-64 flex justify-center">
+                        <canvas id="sectorChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Search Portal Mock (데이터 검색 & 바로가기) -->
+    <section id="search" class="py-20 bg-gov-darkBlue text-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <h2 class="text-3xl font-extrabold mb-3">국가 데이터 포털 즉시 검색</h2>
+                <p class="text-gray-300 text-sm">필요한 공공데이터셋 및 AI 학습 데이터를 간편하게 찾아보세요.</p>
+            </div>
+
+            <!-- Mock Search Bar -->
+            <div class="max-w-3xl mx-auto mb-12">
+                <form onsubmit="event.preventDefault(); handleSearch();" class="flex flex-col sm:flex-row gap-3 bg-white/10 p-2 rounded-2xl border border-white/20 backdrop-blur-md">
+                    <div class="relative flex-1">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="searchInput" placeholder="검색어를 입력하세요 (예: 교통량, 기후 변화, 인구 이동, 의료 AI 데이터)" 
+                               class="w-full pl-11 pr-4 py-3.5 bg-white text-gray-900 placeholder-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-gov-accent text-sm">
+                    </div>
+                    <button type="submit" class="px-8 py-3.5 bg-gov-accent hover:bg-blue-600 text-white font-bold rounded-xl transition shadow-md whitespace-nowrap text-sm">
+                        통합 검색
+                    </button>
+                </form>
+
+                <!-- Popular Keywords -->
+                <div class="flex flex-wrap items-center justify-center gap-2 mt-4 text-xs text-gray-300">
+                    <span class="text-gray-400 font-semibold">인기 검색어:</span>
+                    <button onclick="setSearch('스마트시티')" class="px-2.5 py-1 bg-white/10 rounded-full hover:bg-white/20 transition">#스마트시티</button>
+                    <button onclick="setSearch('LLM 학습데이터')" class="px-2.5 py-1 bg-white/10 rounded-full hover:bg-white/20 transition">#LLM 학습데이터</button>
+                    <button onclick="setSearch('부동산 실거래가')" class="px-2.5 py-1 bg-white/10 rounded-full hover:bg-white/20 transition">#부동산 실거래가</button>
+                    <button onclick="setSearch('전국 주차장')" class="px-2.5 py-1 bg-white/10 rounded-full hover:bg-white/20 transition">#전국 주차장</button>
+                </div>
+            </div>
+
+            <!-- Search Result Modal / Toast Message Area -->
+            <div id="searchResultBox" class="hidden max-w-3xl mx-auto mb-12 bg-white text-gray-900 p-4 rounded-xl shadow-lg border border-blue-200">
+                <p class="text-sm font-medium"><i class="fa-solid fa-circle-info text-gov-accent mr-2"></i>'<span id="searchedTerm" class="font-bold"></span>' 검색 결과: 총 <span class="text-gov-accent font-bold">128건</span>의 데이터셋이 검색되었습니다. (공공데이터 포털로 이동)</p>
+            </div>
+
+            <!-- Portal Quick Link Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <a href="#" class="p-5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center text-blue-300 text-xl shrink-0">
+                        <i class="fa-solid fa-globe"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-white">공공데이터 포털</h4>
+                        <p class="text-xs text-gray-400 mt-1">data.go.kr 연동</p>
+                    </div>
+                </a>
+
+                <a href="#" class="p-5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-emerald-500/20 rounded-lg flex items-center justify-center text-emerald-300 text-xl shrink-0">
+                        <i class="fa-solid fa-vault"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-white">데이터 안심구역</h4>
+                        <p class="text-xs text-gray-400 mt-1">안전한 데이터 결합·분석</p>
+                    </div>
+                </a>
+
+                <a href="#" class="p-5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-indigo-500/20 rounded-lg flex items-center justify-center text-indigo-300 text-xl shrink-0">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-white">AI Hub 통합 연계</h4>
+                        <p class="text-xs text-gray-400 mt-1">인공지능 학습용 데이터셋</p>
+                    </div>
+                </a>
+
+                <a href="#" class="p-5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-amber-500/20 rounded-lg flex items-center justify-center text-amber-300 text-xl shrink-0">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-white">데이터분쟁조정위</h4>
+                        <p class="text-xs text-gray-400 mt-1">거래 및 이용 권리 보호</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Organization & Announcements Section (조직 안내 및 공지사항) -->
+    <section id="organization" class="py-20 bg-gov-lightBg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                
+                <!-- Left: Organization Tree -->
+                <div class="lg:col-span-6 bg-white p-8 rounded-2xl border border-gray-200 shadow-sm">
+                    <h3 class="text-xl font-bold text-gov-blue mb-6 flex items-center">
+                        <i class="fa-solid fa-sitemap mr-3 text-gov-accent"></i>조직 구성 체계
+                    </h3>
+                    
+                    <div class="space-y-4 text-sm">
+                        <!-- Top Level -->
+                        <div class="p-3 bg-gov-blue text-white rounded-lg font-bold text-center">
+                            처장 (National Data Minister)
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3 text-center font-medium">
+                            <div class="p-2.5 bg-blue-50 text-gov-blue border border-blue-200 rounded-md">차장</div>
+                            <div class="p-2.5 bg-blue-50 text-gov-blue border border-blue-200 rounded-md">대변인</div>
+                        </div>
+
+                        <!-- Divisions List -->
+                        <div class="border-t border-gray-200 pt-4 space-y-2">
+                            <div class="p-3 bg-gray-50 rounded-lg border border-gray-200 flex justify-between items-center">
+                                <span class="font-bold text-gray-800">기획조정관</span>
+                                <span class="text-xs text-gray-500">기획재정 / 혁신행정 / 정보화</span>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-lg border border-gray-200 flex justify-between items-center">
+                                <span class="font-bold text-gray-800">데이터정책국</span>
+                                <span class="text-xs text-gray-500">총괄기획 / 제도개선 / 데이터거버넌스</span>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-lg border border-gray-200 flex justify-between items-center">
+                                <span class="font-bold text-gray-800">데이터융합진흥국</span>
+                                <span class="text-xs text-gray-500">공공개방 / AI데이터 / 산업육성</span>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-lg border border-gray-200 flex justify-between items-center">
+                                <span class="font-bold text-gray-800">데이터보안안심과</span>
+                                <span class="text-xs text-gray-500">개인정보보호 / 안심구역 / 보안인증</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Notice Feed & Location Info -->
+                <div class="lg:col-span-6 flex flex-col justify-between space-y-8">
+                    <!-- Notice Widget -->
+                    <div class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm flex-1">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold text-gov-blue flex items-center">
+                                <i class="fa-solid fa-bullhorn mr-3 text-gov-accent"></i>최신 알림 및 보도자료
+                            </h3>
+                            <a href="#" class="text-xs text-gray-500 hover:text-gov-accent">전체보기 +</a>
+                        </div>
+
+                        <ul class="space-y-4 text-sm">
+                            <li class="flex justify-between items-center pb-3 border-b border-gray-100">
+                                <a href="#" class="hover:text-gov-accent transition font-medium truncate max-w-xs sm:max-w-md">
+                                    [보도자료] 2026년 국가 데이터 통합개방 기본계획 발표
+                                </a>
+                                <span class="text-xs text-gray-400 shrink-0 ml-2">2026.09.21</span>
+                            </li>
+                            <li class="flex justify-between items-center pb-3 border-b border-gray-100">
+                                <a href="#" class="hover:text-gov-accent transition font-medium truncate max-w-xs sm:max-w-md">
+                                    [공고] 초거대 AI 모델 학습용 데이터 구축 사업 참여기업 모집
+                                </a>
+                                <span class="text-xs text-gray-400 shrink-0 ml-2">2026.09.18</span>
+                            </li>
+                            <li class="flex justify-between items-center pb-3 border-b border-gray-100">
+                                <a href="#" class="hover:text-gov-accent transition font-medium truncate max-w-xs sm:max-w-md">
+                                    [안내] 수도권 데이터 안심구역 보안 점검에 따른 일시 중단 안내
+                                </a>
+                                <span class="text-xs text-gray-400 shrink-0 ml-2">2026.09.15</span>
+                            </li>
+                            <li class="flex justify-between items-center">
+                                <a href="#" class="hover:text-gov-accent transition font-medium truncate max-w-xs sm:max-w-md">
+                                    [입법예고] 데이터 가치평가 및 품질인증 기준 고시 제정안
+                                </a>
+                                <span class="text-xs text-gray-400 shrink-0 ml-2">2026.09.10</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Contact & Map Link Info -->
+                    <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div class="space-y-1 text-center sm:text-left">
+                            <h4 class="font-bold text-gray-900 text-sm">청사 안내 및 민원실</h4>
+                            <p class="text-xs text-gray-600"><i class="fa-solid fa-location-dot text-gov-accent mr-1"></i> 세종특별자치시 정부2청사로 13 국가데이터처</p>
+                            <p class="text-xs text-gray-600"><i class="fa-solid fa-phone text-gov-accent mr-1"></i> 데이터 민원콜센터: 1588-0000 (국번없이)</p>
+                        </div>
+                        <button onclick="alert('세종 정부청사 안내 페이지로 연결됩니다.')" class="px-4 py-2.5 text-xs bg-gray-100 hover:bg-gray-200 font-semibold text-gray-700 rounded-lg transition whitespace-nowrap">
+                            오시는 길 안내
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gov-darkBlue text-gray-400 text-xs border-t border-gray-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 mb-8">
+                <!-- Footer Brand -->
+                <div class="md:col-span-5 space-y-3">
+                    <div class="flex items-center space-x-2 text-white font-bold text-base">
+                        <i class="fa-solid fa-microchip text-gov-accent"></i>
+                        <span>대한민국 국가데이터처</span>
+                    </div>
+                    <p class="text-gray-400 leading-relaxed">
+                        (30103) 세종특별자치시 정부2청사로 13 국가데이터처<br/>
+                        대표전화: 044-000-0000 | 팩스: 044-000-0001
+                    </p>
+                    <p class="text-gray-500">© National Data Service. All rights reserved.</p>
+                </div>
+
+                <!-- Footer Navigation Links -->
+                <div class="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-6">
+                    <div>
+                        <h5 class="text-white font-semibold mb-3">개인정보 및 약관</h5>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-white hover:underline font-bold">개인정보처리방침</a></li>
+                            <li><a href="#" class="hover:text-white">저작권 정책</a></li>
+                            <li><a href="#" class="hover:text-white">웹 접근성 방침</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h5 class="text-white font-semibold mb-3">주요 연계기관</h5>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="hover:text-white">과학기술정보통신부</a></li>
+                            <li><a href="#" class="hover:text-white">행정안전부</a></li>
+                            <li><a href="#" class="hover:text-white">개인정보보호위원회</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h5 class="text-white font-semibold mb-3">국민 참여</h5>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="hover:text-white">데이터 제안 및 요청</a></li>
+                            <li><a href="#" class="hover:text-white">정부신문고</a></li>
+                            <li><a href="#" class="hover:text-white">소통24</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-6 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between text-gray-500 text-[11px]">
+                <p>본 웹사이트는 대한민국 국가데이터처의 공식 가상 정보 포털입니다.</p>
+                <div class="flex space-x-4 mt-2 sm:mt-0">
+                    <a href="#" class="hover:text-white"><i class="fa-brands fa-youtube text-base"></i></a>
+                    <a href="#" class="hover:text-white"><i class="fa-brands fa-facebook text-base"></i></a>
+                    <a href="#" class="hover:text-white"><i class="fa-brands fa-blog text-base"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts for Dynamic Interactivity & Charts -->
+    <script>
+        // Mobile menu toggle logic
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Search Form Handling
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if(!query) {
+                alert('검색어를 입력해주세요.');
+                return;
+            }
+            document.getElementById('searchedTerm').innerText = query;
+            document.getElementById('searchResultBox').classList.remove('hidden');
+        }
+
+        function setSearch(keyword) {
+            document.getElementById('searchInput').value = keyword;
+            handleSearch();
+        }
+
+        // Counter Animation Logic
+        function animateCounters() {
+            const counters = document.querySelectorAll('.counter');
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const duration = 1500; // ms
+                const step = Math.ceil(target / (duration / 16));
+                
+                let count = 0;
+                const updateCount = () => {
+                    count += step;
+                    if(count < target) {
+                        counter.innerText = count.toLocaleString();
+                        requestAnimationFrame(updateCount);
+                    } else {
+                        counter.innerText = target.toLocaleString();
+                    }
+                };
+                updateCount();
+            });
+        }
+
+        // Initialize Charts with Chart.js
+        function initCharts() {
+            // Chart 1: Growth Trend Line Chart
+            const ctx1 = document.getElementById('growthChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: ['2022', '2023', '2024', '2025', '2026(예상)'],
+                    datasets: [
+                        {
+                            label: '공공데이터 개방 건수',
+                            data: [45, 62, 78, 89, 98.4],
+                            borderColor: '#003366',
+                            backgroundColor: 'rgba(0, 51, 102, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: '활용 신청 건수',
+                            data: [12, 24, 41, 65, 82.1],
+                            borderColor: '#1a73e8',
+                            backgroundColor: 'transparent',
+                            borderDash: [5, 5],
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Chart 2: Sector Doughnut Chart
+            const ctx2 = document.getElementById('sectorChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['교통·물류', 'AI·빅데이터', '보건·의료', '국토·환경', '금융·경제', '기타'],
+                    datasets: [{
+                        data: [28, 24, 18, 15, 10, 5],
+                        backgroundColor: [
+                            '#003366',
+                            '#1a73e8',
+                            '#0284c7',
+                            '#059669',
+                            '#d97706',
+                            '#94a3b8'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' }
+                    }
+                }
+            });
+        }
+
+        // Execute on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            animateCounters();
+            initCharts();
+        });
+    </script>
+</body>
+</html>
